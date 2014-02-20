@@ -17,7 +17,7 @@ class Server (object):
         self.sources = sources
         self.cache = cache
         if not _os.path.isdir(self.cache):
-            _os.makedirs(path=self.cache, exist_ok=True)
+            _os.makedirs(self.cache, exist_ok=True)
 
     def __call__(self, environ, start_response):
         try:
