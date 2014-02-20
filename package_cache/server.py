@@ -31,7 +31,7 @@ class Server (object):
         url = environ.get('PATH_INFO', None)
         if url is None:
             raise InvalidFile(url=url)
-        parsed_url = _urllib_parse.urlparse(urlstring=url)
+        parsed_url = _urllib_parse.urlparse(url)
         relative_path = parsed_url.path.lstrip('/').replace('/', _os.path.sep)
         cache_path = _os.path.join(self.cache, relative_path)
         if not _os.path.exists(path=cache_path):
