@@ -92,6 +92,6 @@ class Server (object):
           https://tools.ietf.org/html/rfc1123#page-55
           https://tools.ietf.org/html/rfc822#section-5
         """
-        mtime = _os.path.getmtime(path=path)
+        mtime = _os.path.getmtime(path)
         return _email_utils.formatdate(
             timeval=mtime, localtime=False, usegmt=True)
