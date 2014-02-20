@@ -17,12 +17,16 @@
 
 import calendar as _calendar
 import email.utils as _email_utils
+import logging as _logging
 import mimetypes as _mimetypes
 import os as _os
 import urllib.error as _urllib_error
 import urllib.request as _urllib_request
 
 from . import __version__
+
+
+LOG = _logging.getLogger(__name__)
 
 
 class InvalidFile (ValueError):
@@ -81,13 +85,16 @@ class Server (object):
             source_url = source.rstrip('/') + url
             try:
                 self._get_file(url=source_url, path=path)
-            except _urllib_error.HTTPError:
+            except _urllib_error.HTTPError as e:
+                LOG.warn('error getting {}: {} {}'.format(
+                    source_url, e.code, e.reason))
                 if i == len(self.sources) - 1:
                     raise
             else:
                 return
 
     def _get_file(self, url, path):
+        LOG.info('GET {}'.format(url))
         with self.opener.open(url) as response:
             last_modified = response.getheader('Last-Modified', None)
             content_length = int(response.getheader('Content-Length'))
@@ -101,6 +108,7 @@ class Server (object):
         if last_modified:
             mtime = _calendar.timegm(_email_utils.parsedate(last_modified))
             _os.utime(path=path, times=(mtime, mtime))
+        LOG.info('got {}'.format(url))
 
     def _serve_file(self, path, environ, start_response):
         headers = {
