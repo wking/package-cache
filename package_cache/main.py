@@ -17,6 +17,7 @@
 
 import argparse as _argparse
 import logging as _logging
+import logging.handlers as _logging_handlers
 import wsgiref.simple_server as _wsgiref_simple_server
 
 from . import __version__
@@ -53,6 +54,9 @@ def run(*args, **kwargs):
         '--verbose', '-v', action='count',
         help='Increment the logging verbosity')
     parser.add_argument(
+        '--syslog', action='store_const', const=True,
+        help='Increment the logging verbosity')
+    parser.add_argument(
         '--host', metavar='HOSTNAME', default='localhost',
         help='Host to listen as')
     parser.add_argument(
@@ -71,6 +75,13 @@ def run(*args, **kwargs):
         _MAIN_LOG.setLevel(max(
             _logging.DEBUG,
             _MAIN_LOG.level - 10 * args.verbose))
+    if args.syslog:
+        while _MAIN_LOG.handlers:
+            h = _MAIN_LOG.handlers[0]
+            _MAIN_LOG.removeHandler(h)
+        handler = _logging_handlers.SysLogHandler(
+            address='/dev/log', facility='daemon')
+        _MAIN_LOG.addHandler(handler)
 
     server = _server.Server(sources=args.source or [], cache=args.cache)
     wsgi = _wsgiref_simple_server.make_server(
