@@ -4,7 +4,6 @@ import email.utils as _email_utils
 import mimetypes as _mimetypes
 import os as _os
 import urllib.error as _urllib_error
-import urllib.parse as _urllib_parse
 import urllib.request as _urllib_request
 
 from . import __version__
@@ -41,15 +40,22 @@ class Server (object):
         url = environ.get('PATH_INFO', None)
         if url is None:
             raise InvalidFile(url=url)
-        parsed_url = _urllib_parse.urlparse(url)
-        relative_path = parsed_url.path.lstrip('/').replace('/', _os.path.sep)
-        cache_path = _os.path.join(self.cache, relative_path)
+        cache_path = self._get_cache_path(url=url)
         if not _os.path.exists(path=cache_path):
             self._get_file_from_sources(url=url, path=cache_path)
         if not _os.path.isfile(path=cache_path):
             raise InvalidFile(url=url)
         return self._serve_file(
             path=cache_path, environ=environ, start_response=start_response)
+
+    def _get_cache_path(self, url):
+        relative_path = url.lstrip('/').replace('/', _os.path.sep)
+        cache_path = _os.path.abspath(_os.path.join(self.cache, relative_path))
+        check_relative_path = _os.path.relpath(
+            path=cache_path, start=self.cache)
+        if check_relative_path.startswith(_os.pardir + _os.path.sep):
+            raise InvalidFile(url=url)
+        return cache_path
 
     def _get_file_from_sources(self, url, path):
         dirname = _os.path.dirname(path)
