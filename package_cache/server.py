@@ -1,5 +1,6 @@
 # Copyright
 
+import calendar as _calendar
 import email.utils as _email_utils
 import mimetypes as _mimetypes
 import os as _os
@@ -73,6 +74,7 @@ class Server (object):
 
     def _get_file(self, url, path):
         with self.opener.open(url) as response:
+            last_modified = response.getheader('Last-Modified', None)
             content_length = int(response.getheader('Content-Length'))
             with open(path, 'wb') as f:
                 block_size = 8192
@@ -81,6 +83,9 @@ class Server (object):
                     f.write(data)
                     if len(data) < block_size:
                         break
+        if last_modified:
+            mtime = _calendar.timegm(_email_utils.parsedate(last_modified))
+            _os.utime(path=path, times=(mtime, mtime))
 
     def _serve_file(self, path, environ, start_response):
         headers = {
