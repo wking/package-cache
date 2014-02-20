@@ -24,7 +24,7 @@ class Server (object):
             return self._serve_request(
                 environ=environ, start_response=start_response)
         except InvalidFile:
-            start_response(status='404 Not Found', response_headers=[])
+            start_response('404 Not Found', [])
 
     def _serve_request(self, environ, start_response):
         method = environ['REQUEST_METHOD']
@@ -55,9 +55,7 @@ class Server (object):
             file_iterator = environ['wsgi.file_wrapper'](f)
         else:
             file_iterator = iter(lambda: f.read(block_size), '')
-        start_response(
-            status='200 OK',
-            response_headers=list(headers.items()))
+        start_response('200 OK', list(headers.items()))
         return file_iterator
 
     def _get_content_length(self, path):
