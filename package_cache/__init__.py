@@ -17,4 +17,11 @@
 
 "A caching proxy for package downloads"
 
+import logging as _logging
+
+
 __version__ = '0.0'
+
+LOG = _logging.getLogger(__name__)
+LOG.setLevel(_logging.WARNING)
+LOG.addHandler(_logging.StreamHandler())
