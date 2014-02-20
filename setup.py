@@ -55,6 +55,6 @@ setup(
         'Topic :: System :: Software Distribution',
         ],
     packages=['package_cache'],
-    scripts=['package-cache.py'],
+    scripts=['package-cache'],
     provides=['package_cache'],
     )
