@@ -24,8 +24,6 @@ class Server (object):
         self.opener.addheaders = [
             ('User-agent', 'Package-cache/{}'.format(__version__)),
             ]
-        if not _os.path.isdir(self.cache):
-            _os.makedirs(self.cache, exist_ok=True)
 
     def __call__(self, environ, start_response):
         try:
@@ -54,6 +52,9 @@ class Server (object):
             path=cache_path, environ=environ, start_response=start_response)
 
     def _get_file_from_sources(self, url, path):
+        dirname = _os.path.dirname(path)
+        if not _os.path.isdir(dirname):
+            _os.makedirs(dirname, exist_ok=True)
         for i, source in enumerate(self.sources):
             source_url = source.rstrip('/') + url
             try:
