@@ -1,0 +1,50 @@
+#!/sbin/runscript
+
+PC_USER="${PC_USER:-package-cache}"
+PC_GROUP="${PC_GROUP:-portage}"
+CACHE_DIR="${CACHE_DIR:-/usr/portage/distfiles}"
+HOST="${HOST:-0.0.0.0}"
+PORT="${PORT:-4000}"
+SOURCES="${SOURCES:-http://distfiles.gentoo.org/distfiles}"
+SOURCE_OPTS=()
+for SOURCE in ${SOURCES}
+do
+	SOURCE_OPTS+=( --source "${SOURCE}" )
+done
+command="/usr/bin/package-cache"
+pidfile="/run/${SVCNAME}.pid"
+
+depend() {
+	need net
+}
+
+start() {
+	ebegin "Starting ${SVCNAME}"
+	if [[ ! -d "${CACHE_DIR}" ]]; then
+		mkdir -p "${CACHE_DIR}"
+		chown "${PC_USER}:${PC_GROUP}" "${CACHE_DIR}"
+	fi
+	start-stop-daemon --start \
+		--user "${PC_USER}:${PC_GROUP}" \
+		--chdir "${CACHE_DIR}" \
+		--exec "${command}" \
+		--background \
+		--pidfile "${pidfile}" \
+		--make-pidfile \
+		-- \
+		--syslog \
+		--host "${HOST}" \
+		--port "${PORT}" \
+		"${SOURCE_OPTS[@]}" \
+		--cache "${CACHE_DIR}"
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping ${SVCNAME}"
+	start-stop-daemon --stop \
+		--user "${PC_USER}:${PC_GROUP}" \
+		--exec "${command}" \
+		--pidfile "${pidfile}"
+	eend $?
+}
