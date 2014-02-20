@@ -66,7 +66,7 @@ class Server (object):
         Content-Length:
           https://tools.ietf.org/html/rfc2616#section-14.13
         """
-        return str(_os.path.getsize(path=path))
+        return str(_os.path.getsize(path))
 
     def _get_content_type(self, path):
         """Content-Type value per RFC 2616
