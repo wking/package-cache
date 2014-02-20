@@ -20,10 +20,26 @@ import logging as _logging
 import wsgiref.simple_server as _wsgiref_simple_server
 
 from . import __version__
+from . import LOG as _MAIN_LOG
 from . import server as _server
 
 
 LOG = _logging.getLogger(__name__)
+
+
+class LoggingRequestHandler (_wsgiref_simple_server.WSGIRequestHandler):
+    def log_message(self, format, *args):
+        """Log a message using LOG
+
+        Use a logger instead of printing directly to stderr.  This
+        method overrides the http.server.BaseHTTPRequestHandler
+        inherited by WSGIRequestHandler.
+        """
+        LOG.info(
+            '%s - - [%s] %s' % (
+                self.address_string(),
+                self.log_date_time_string(),
+                format % args))
 
 
 def run(*args, **kwargs):
@@ -33,6 +49,9 @@ def run(*args, **kwargs):
     parser.add_argument(
         '--version', action='version',
         version='%(prog)s {}'.format(__version__))
+    parser.add_argument(
+        '--verbose', '-v', action='count',
+        help='Increment the logging verbosity')
     parser.add_argument(
         '--host', metavar='HOSTNAME', default='localhost',
         help='Host to listen as')
@@ -48,8 +67,14 @@ def run(*args, **kwargs):
 
     args = parser.parse_args()
 
+    if args.verbose:
+        _MAIN_LOG.setLevel(max(
+            _logging.DEBUG,
+            _MAIN_LOG.level - 10 * args.verbose))
+
     server = _server.Server(sources=args.source or [], cache=args.cache)
     wsgi = _wsgiref_simple_server.make_server(
-        host=args.host, port=args.port, app=server)
+        host=args.host, port=args.port, app=server,
+        handler_class=LoggingRequestHandler)
     LOG.info('serving WSGI on {}:{}'.format(args.host, args.port))
     wsgi.serve_forever()
