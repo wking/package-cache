@@ -82,6 +82,9 @@ def run(*args, **kwargs):
         handler = _logging_handlers.SysLogHandler(
             address='/dev/log', facility='daemon')
         _MAIN_LOG.addHandler(handler)
+        formatter = _logging.Formatter(
+            fmt='%(name)s[%(process)d]: %(message)s')
+        handler.setFormatter(formatter)
 
     server = _server.Server(sources=args.source or [], cache=args.cache)
     wsgi = _wsgiref_simple_server.make_server(
