@@ -2,10 +2,10 @@
 
 PC_USER="${PC_USER:-package-cache}"
 PC_GROUP="${PC_GROUP:-portage}"
-CACHE_DIR="${CACHE_DIR:-/usr/portage/distfiles}"
+CACHE_DIR="${CACHE_DIR:-/usr/portage}"
 HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-4000}"
-SOURCES="${SOURCES:-http://distfiles.gentoo.org/distfiles}"
+SOURCES="${SOURCES:-http://distfiles.gentoo.org}"
 SOURCE_OPTS=()
 for SOURCE in ${SOURCES}
 do
