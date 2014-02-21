@@ -36,7 +36,8 @@ start() {
 		--host "${HOST}" \
 		--port "${PORT}" \
 		"${SOURCE_OPTS[@]}" \
-		--cache "${CACHE_DIR}"
+		--cache "${CACHE_DIR}" \
+		${PC_OPTS:+${PC_OPTS}}
 	eend $?
 }
 
