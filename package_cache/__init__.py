@@ -20,7 +20,7 @@
 import logging as _logging
 
 
-__version__ = '0.0'
+__version__ = '0.1'
 
 LOG = _logging.getLogger(__name__)
 LOG.setLevel(_logging.WARNING)
