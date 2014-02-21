@@ -143,8 +143,9 @@ class Server (object):
         mimetype, charset = _mimetypes.guess_type(url=path)
         if charset:
             return '{}; charset={}'.format(mimetype, charset)
-        else:
+        elif mimetype:
             return mimetype
+        return 'application/octet-stream'
 
     def _get_last_modified(self, path):
         """Last-Modified value per RFC 2616
