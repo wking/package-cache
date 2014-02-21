@@ -59,6 +59,31 @@ Portage_, that's going to be something like:
 
 in your ``/etc/portage/make.conf``.
 
+If you *don't* want to tweak your clients (perhaps there are many of
+them, or they are out of your direct control), you can add some
+firewall rules to your router to transparently proxy specific Gentoo
+mirrors.  With an internal ``eth1`` and an internal proxy on
+192.168.0.11, that looks something like::
+
+  # CACHE_IP=192.168.0.11
+  # for SOURCE_IP in $(dig +short distfiles.gentoo.org);
+  > do
+  >   iptables --table nat --append PREROUTING --protocol tcp \
+  >     --in-interface eth1 ! --source "${CACHE_IP}" \
+  >     --destination "${SOURCE_IP}" \
+  >     --match tcp --destination-port 80 \
+  >     --jump DNAT --to-destination "${CACHE_IP}:4000" ;
+  > done
+
+To remove those entries later, repeat the command with ``--delete``
+instead of ``--append``.  You may need to list the ``SOURCE_IP`` values
+explicitly if the DNS entries have changed.  Run::
+
+  # iptables --table nat --list PREROUTING --numeric
+
+to list the entries.  See ``iptables(8)`` and
+``iptables-extensions(8)`` for more details.
+
 .. _Gentoo's distfiles:
   https://wiki.gentoo.org/wiki/Project:Infrastructure/Source_mirrors
 .. _Cache-Control headers:
