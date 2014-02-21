@@ -34,6 +34,31 @@ For other command-line options, see::
 
 If you need a more perfomant backend, you might try Gunicorn_.
 
+Gentoo
+======
+
+There's an OpenRC_ init script in ``contrib/openrc/init.d``, and a
+package-cache ebuild in my `wtk overlay`_.  To use package-cache as a
+caching proxy for your distfiles downloads, add the ``wtk`` overlay to
+layman_ and run::
+
+  # emerge --ask --verbose net-proxy/package-cache
+  # rc-update add default net-proxy/package-cache
+  # rc-service package-cache start
+
+You can tweak the parameters by setting variables in
+``/etc/conf.d/package-cache`` (``PC_USER``, ``PC_GROUP``,
+``CACHE_DIR``, ``HOST``, ``PORT``, ``SOURCES``, and ``PC_OPTS``).  See
+the init script for default values.
+
+Once you've setup your package-cache service, just point your local
+package manager to the cache server instead of the usual mirror.  For
+Portage_, that's going to be something like:
+
+  GENTOO_MIRRORS="http://my-package-cache-server.net:4000/"
+
+in your ``/etc/portage/make.conf``.
+
 .. _Gentoo's distfiles:
   https://wiki.gentoo.org/wiki/Project:Infrastructure/Source_mirrors
 .. _Cache-Control headers:
@@ -42,3 +67,7 @@ If you need a more perfomant backend, you might try Gunicorn_.
   http://docs.python.org/3/library/wsgiref.html
 .. _Gunicorn:
   http://gunicorn-docs.readthedocs.org/en/latest/run.html#gunicorn
+.. _OpenRC: http://www.gentoo.org/proj/en/base/openrc/
+.. _wtk overlay: http://blog.tremily.us/posts/Gentoo_overlay/
+.. _layman: https://wiki.gentoo.org/wiki/Layman
+.. _Portage: http://wiki.gentoo.org/wiki/Project:Portage
